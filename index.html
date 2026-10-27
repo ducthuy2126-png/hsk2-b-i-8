@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tiếng Trung cô Twy - Ôn tập tổng hợp</title>
+    <style>
+        :root { --pink: #FFB7C5; --dark-pink: #FF6F91; --white: #FFF5F7; --green: #77DD77; --red: #FF6961; }
+        body { background-color: var(--white); color: var(--dark-pink); font-family: sans-serif; text-align: center; padding: 20px; font-size: 20px; }
+        .box { border: 3px solid var(--pink); border-radius: 20px; padding: 20px; margin: 15px auto; background: white; max-width: 700px; }
+        .btn { border: 2px solid var(--pink); border-radius: 12px; padding: 8px 16px; margin: 5px; cursor: pointer; background: white; color: var(--dark-pink); font-size: 18px; }
+        .btn:hover, .btn.active { background: var(--pink); color: white; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 16px; }
+        th, td { border: 2px solid var(--pink); padding: 8px; }
+        .correct { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
+        .wrong { background: var(--red) !important; color: white !important; border-color: var(--red) !important; }
+        .q-box { border-bottom: 2px solid var(--pink); padding: 15px; margin-bottom: 10px; }
+        .f-container { perspective: 1000px; width: 300px; height: 180px; margin: 20px auto; cursor: pointer; }
+        .f-card { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        .f-front, .f-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border: 3px solid var(--pink); border-radius: 20px; display: flex; align-items: center; justify-content: center; background: white; flex-direction: column; }
+        .f-back { transform: rotateY(180deg); }
+    </style>
+</head>
+<body>
+
+<h1>Ôn tập tổng hợp 🌸</h1>
+<div id="nav">
+    <button class="btn" onclick="render('tuvung')">Từ vựng</button>
+    <button class="btn" onclick="render('flashcard')">Flashcard</button>
+    <button class="btn" onclick="render('ontap')">Ôn tập</button>
+    <button class="btn" onclick="render('nghe')">Nghe</button>
+    <button class="btn" onclick="render('dich')">Dịch</button>
+    <button class="btn" onclick="render('quiz')">Bài thi</button>
+</div>
+<div id="content" class="box">Chọn module để bắt đầu ôn tập nhé!</div>
+
+<script>
+const data = [
+    {h: "懒", p: "lǎn", m: "Lười, lười biếng, lười nhác"},
+    {h: "最", p: "zuì", m: "Nhất"},
+    {h: "改变", p: "gǎibiàn", m: "Thay đổi, biến đổi, cải biến"},
+    {h: "去玩", p: "qù wán", m: "Đi chơi"},
+    {h: "要", p: "yào", m: "Muốn"},
+    {h: "再", p: "zài", m: "Lại, lại nữa, hãy"},
+    {h: "让", p: "ràng", m: "Để, bảo"},
+    {h: "告诉", p: "gàosù", m: "Nói cho biết"},
+    {h: "等", p: "děng", m: "Đợi"},
+    {h: "找", p: "zhǎo", m: "Tìm"},
+    {h: "事情", p: "shìqing", m: "Sự việc"},
+    {h: "服务员", p: "fúwùyuán", m: "Nhân viên phục vụ"},
+    {h: "白", p: "bái", m: "Màu trắng"},
+    {h: "黑", p: "hēi", m: "Màu đen"},
+    {h: "贵", p: "guì", m: "Đắt"}
+];
+let cur = 0, currentType = "";
+
+function render(type) {
+    currentType = type; const c = document.getElementById('content');
+    if(type == 'tuvung') c.innerHTML = "<table><tr><th>Hán tự</th><th>Pinyin</th><th>Nghĩa</th></tr>" + data.map(x => `<tr><td>${x.h}</td><td>${x.p}</td><td>${x.m}</td></tr>`).join('') + "</table>";
+    else if(type == 'flashcard') c.innerHTML = `<div class="f-container" onclick="this.querySelector('.f-card').style.transform='rotateY(180deg)'"><div class="f-card"><div class="f-front"><h1>${data[cur].h}</h1></div><div class="f-back"><h3>${data[cur].p}</h3><p>${data[cur].m}</p></div></div></div><button class="btn" onclick="speak('${data[cur].h}')">🔊 Đọc</button><br><button class="btn" onclick="nav(-1)">◀</button><button class="btn" onclick="nav(1)">▶</button>`;
+    else if(type == 'ontap') {
+        let opts = data.filter(x=>x.h!=data[cur].h).sort(()=>Math.random()-0.5).slice(0,3); opts.push(data[cur]); opts.sort(()=>Math.random()-0.5);
+        c.innerHTML = `<h3>Hán tự: ${data[cur].h}</h3>` + opts.map(o=>`<button class="btn" onclick="checkBtn(this, '${o.m}', '${data[cur].m}')">${o.m}</button>`).join('') + `<br><button class="btn" onclick="nav(-1)">◀</button><button class="btn" onclick="nav(1)">▶</button>`;
+    } else if(type == 'nghe' || type == 'dich') {
+        c.innerHTML = `<h3>${type=='nghe'?'Nghe':'Dịch: '+data[cur].m}</h3>` + (type=='nghe'?'<button class="btn" onclick="speak(\''+data[cur].h+'\')">🔊</button><br>':'') + `<input id="in"> <button class="btn" onclick="checkIn('${data[cur].h}')">Kiểm tra</button><div id="res"></div><br><button class="btn" onclick="nav(-1)">◀</button><button class="btn" onclick="nav(1)">▶</button>`;
+    } else if(type == 'quiz') {
+        c.innerHTML = data.map((w,i) => {
+            let opts = [w.h]; let pool = data.filter(x=>x.h!=w.h);
+            while(opts.length < 4) { let r = pool[Math.floor(Math.random()*pool.length)].h; if(!opts.includes(r)) opts.push(r); }
+            return `<div class="q-box" data-a="${w.h}"><p>Câu ${i+1}: <b>${w.m}</b>?</p>${opts.sort(()=>Math.random()-0.5).map(o=>`<button class="btn q-btn" onclick="sel(this)">${o}</button>`).join('')}<div class="res" style="display:none">Đáp án: ${w.h}</div></div>`;
+        }).join('') + `<br><button class="btn" onclick="submit()">NỘP BÀI</button><h2 id="score"></h2>`;
+    }
+}
+function nav(s) { cur = (cur + s + data.length) % data.length; render(currentType); }
+function speak(t) { let m = new SpeechSynthesisUtterance(t); m.lang='zh-CN'; window.speechSynthesis.speak(m); }
+function checkIn(c) { document.getElementById('res').innerText = (document.getElementById('in').value == c ? "✅ Đúng" : "❌ Sai, đáp án: "+c); }
+function checkBtn(el, s, c) { el.classList.add(s == c ? 'correct' : 'wrong'); }
+function sel(el) { el.parentElement.querySelectorAll('.btn').forEach(b=>b.style.borderColor='var(--pink)'); el.style.borderColor='var(--dark-pink)'; el.dataset.v = el.innerText; }
+function submit() {
+    let s = 0; document.querySelectorAll('.q-box').forEach(b => {
+        let u = [...b.querySelectorAll('.q-btn')].find(x => x.style.borderColor == 'var(--dark-pink)');
+        let c = b.dataset.a; b.querySelector('.res').style.display = 'block';
+        if(u) { if(u.dataset.v == c) { u.classList.add('correct'); s++; } else { u.classList.add('wrong'); [...b.querySelectorAll('.q-btn')].find(x=>x.innerText==c).classList.add('correct'); } }
+        else [...b.querySelectorAll('.q-btn')].find(x=>x.innerText==c).classList.add('correct');
+    }); document.getElementById('score').innerText = "Điểm: " + ((s/data.length)*10).toFixed(1) + "/10";
+}
+</script>
+</body>
+</html>
